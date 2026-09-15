@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.IMU;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.config.TuningConfig;
 
 import dev.nextftc.core.subsystems.Subsystem;
@@ -11,9 +13,9 @@ import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.hardware.impl.MotorEx;
 
 /**
- * Standard 4-wheel mecanum drivetrain. Config names must match the Driver Station
- * robot configuration: frontLeft, frontRight, backLeft, backRight, and the Pinpoint
- * odometry computer as "pinpoint" (any I2C port except port 0).
+ * Standard 4-wheel mecanum drivetrain (Studica motors). Config names must match the
+ * Driver Station robot configuration: frontLeft, frontRight, backLeft, backRight, and
+ * "imu" for the Control Hub's built-in IMU (used for heading only - no odometry pods).
  *
  * Owns hardware + mixing only. Per-loop drive policy (reading gamepad1) lives in
  * MecanumDriveCommand, not here - periodic() is telemetry-only per NextFTC convention.
@@ -27,7 +29,7 @@ public class DrivetrainSubsystem implements Subsystem {
     private final MotorEx backLeft = new MotorEx("backLeft");
     private final MotorEx backRight = new MotorEx("backRight");
 
-    private GoBildaPinpointDriver pinpoint;
+    private IMU imu;
 
     private DrivetrainSubsystem() {
     }
@@ -44,31 +46,33 @@ public class DrivetrainSubsystem implements Subsystem {
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        pinpoint = ActiveOpMode.getHardwareMap().get(GoBildaPinpointDriver.class, "pinpoint");
-        pinpoint.setOffsets(TuningConfig.PINPOINT_X_OFFSET_MM, TuningConfig.PINPOINT_Y_OFFSET_MM);
-        pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        pinpoint.setEncoderDirections(
-                GoBildaPinpointDriver.EncoderDirection.FORWARD,
-                GoBildaPinpointDriver.EncoderDirection.FORWARD);
-        // Robot must be stationary here - this runs during onInit(), before start is pressed.
-        pinpoint.resetPosAndIMU();
+        imu = ActiveOpMode.getHardwareMap().get(IMU.class, "imu");
+        // MUST match how the Control/Expansion Hub is physically mounted on the robot -
+        // these are placeholders (see TuningConfig) and will give wrong heading if unset.
+        RevHubOrientationOnRobot orientation = new RevHubOrientationOnRobot(
+                TuningConfig.HUB_LOGO_FACING_DIRECTION,
+                TuningConfig.HUB_USB_FACING_DIRECTION);
+        imu.initialize(new IMU.Parameters(orientation));
     }
 
     @Override
     public void periodic() {
-        pinpoint.update();
-
         ActiveOpMode.getTelemetry().addData("FL power", frontLeft.getPower());
         ActiveOpMode.getTelemetry().addData("FR power", frontRight.getPower());
         ActiveOpMode.getTelemetry().addData("BL power", backLeft.getPower());
         ActiveOpMode.getTelemetry().addData("BR power", backRight.getPower());
-        ActiveOpMode.getTelemetry().addData("Heading (deg)", Math.toDegrees(pinpoint.getHeading()));
+        ActiveOpMode.getTelemetry().addData("Heading (deg)", Math.toDegrees(getHeadingRadians()));
         ActiveOpMode.getTelemetry().update();
     }
 
-    /** Robot heading in radians, counterclockwise positive (Pinpoint/IMU convention). */
+    /** Robot heading in radians, counterclockwise positive. */
     public double getHeadingRadians() {
-        return pinpoint.getHeading();
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+    }
+
+    /** Zeroes heading to the robot's current orientation. */
+    public void resetYaw() {
+        imu.resetYaw();
     }
 
     /**

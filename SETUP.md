@@ -7,7 +7,7 @@ How to go from this repo to code actually running on the robot.
 - **Android Studio** — Narwhal 3 Feature Drop or later (required by FTC SDK v12.0).
 - **Driver Station app**, installed on your Driver Hub or Android phone.
 - **Control Hub**, charged and powered on.
-- A robot wired with: 4 mecanum drive motors, 2 catapult motors, and a goBILDA Pinpoint odometry computer.
+- A robot wired with: 4 Studica mecanum drive motors and 2 goBILDA Yellow Jacket catapult motors. Heading comes from the Control Hub's built-in IMU — no external odometry hardware needed.
 
 ## 2. Open the Project
 
@@ -21,34 +21,24 @@ Connect the Driver Station to the Control Hub's Wi-Fi network, then build a robo
 
 | Name | Type | Notes |
 |---|---|---|
-| `frontLeft` | Motor | goBILDA Yellow Jacket |
-| `frontRight` | Motor | goBILDA Yellow Jacket |
-| `backLeft` | Motor | goBILDA Yellow Jacket |
-| `backRight` | Motor | goBILDA Yellow Jacket |
+| `frontLeft` | Motor | Studica |
+| `frontRight` | Motor | Studica |
+| `backLeft` | Motor | Studica |
+| `backRight` | Motor | Studica |
 | `catapultLeft` | Motor | goBILDA Yellow Jacket, catapult side 1 |
 | `catapultRight` | Motor | goBILDA Yellow Jacket, catapult side 2 |
-| `pinpoint` | I2C Device → goBILDA Pinpoint Odometry Computer | **Any I2C port except port 0** (reserved for the internal IMU) |
+| `imu` | Built-in IMU | Already present in the default Control Hub configuration — don't add it manually, just make sure it's still named `imu` |
 
 Save and activate the configuration on the Driver Station before deploying.
 
-## 4. Pinpoint Setup
+## 4. IMU Orientation Setup
 
-The drivetrain uses Pinpoint's heading for field-centric driving, so it needs to be physically mounted and roughly configured before driving feels right (though it'll run fine before that — driving will just be robot-centric-looking until offsets are correct).
+The drivetrain uses the Control Hub's built-in IMU for heading (field-centric driving). It needs to know which way the hub is physically mounted, or heading — and therefore field-centric driving — will be wrong.
 
-1. Mount both odometry pods, then measure their offsets from the robot's tracking center (see the `pinpoint` skill's `POD_OFFSETS.md` for how to measure this).
-2. Update `TuningConfig.PINPOINT_X_OFFSET_MM` / `PINPOINT_Y_OFFSET_MM` in `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/config/TuningConfig.java` with the real measured values (currently `0.0`/`0.0` placeholders). These can also be tweaked live via Panels (see below), but bake the final values into the file so they survive a redeploy.
-3. If you're using swingarm pods instead of 4-bar pods, change `GoBildaOdometryPods.goBILDA_4_BAR_POD` to `goBILDA_SWINGARM_POD` in `DrivetrainSubsystem.initialize()`.
-4. **Keep the robot stationary during init** — `DrivetrainSubsystem.initialize()` calls `pinpoint.resetPosAndIMU()`, which recalibrates while the Driver Station is on the init screen (before pressing start). Moving the robot during this window will throw off heading for the whole match.
-5. Check the Pinpoint's LED after init — it should be solid green (READY) before you press start:
-
-| LED Color | Status | Action |
-|---|---|---|
-| Green | READY | Normal, good to go |
-| Red (steady) | NOT_READY | Still powering up |
-| Red (blinking) | CALIBRATING | Wait ~0.25s |
-| Purple | NO_PODS_DETECTED | Check both pod connections |
-| Blue | X_POD_NOT_DETECTED | Check forward pod |
-| Orange | Y_POD_NOT_DETECTED | Check strafe pod |
+1. Figure out which way the Control/Expansion Hub's REV logo faces, and which way its USB ports face, when mounted on the robot.
+2. Set `TuningConfig.HUB_LOGO_FACING_DIRECTION` and `HUB_USB_FACING_DIRECTION` in `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/config/TuningConfig.java` to match (currently placeholders: `UP` / `FORWARD`). Valid values are documented on the `RevHubOrientationOnRobot.LogoFacingDirection` / `UsbFacingDirection` enums (autocomplete in Android Studio will list them: `UP`, `DOWN`, `FORWARD`, `BACKWARD`, `LEFT`, `RIGHT`).
+3. These aren't Panels-editable (they're enum constants, not simple numbers) — edit the file directly and redeploy after changing them.
+4. In `MainTeleOp`, press **gamepad1 A** any time to zero heading to the robot's current facing — handy for re-zeroing between matches or if heading drifts.
 
 ## 5. Deploy
 
@@ -76,6 +66,7 @@ This shows live telemetry (wheel powers, heading, catapult position) and lets yo
 | Gamepad1 left stick | Drive forward/strafe (field-centric by default) |
 | Gamepad1 right stick X | Turn |
 | Gamepad1 left bumper (held) | Switch to robot-centric driving |
+| Gamepad1 A | Zero heading to current facing |
 | Gamepad2 A | Fire catapult |
 | Gamepad2 B | Return catapult to ready position |
 
@@ -89,5 +80,5 @@ This shows live telemetry (wheel powers, heading, catapult position) and lets yo
 
 - **Gradle sync fails on `dev.nextftc:*` or `com.bylazar:*` artifacts** — confirm you have internet access on first sync (these resolve from Maven Central) and that Android Studio's `local.properties` points at a valid SDK.
 - **OpMode doesn't appear on Driver Station** — confirm the app finished installing (check Android Studio's Run output) and that the Driver Station is connected to the same robot.
-- **Robot drives in the wrong direction relative to the driver** — check Pinpoint LED is green and pod offsets are set; until then, hold left bumper for robot-centric driving as a fallback.
+- **Robot drives in the wrong direction relative to the driver** — check `HUB_LOGO_FACING_DIRECTION`/`HUB_USB_FACING_DIRECTION` in `TuningConfig` match how the hub is actually mounted; until fixed, hold left bumper for robot-centric driving as a fallback, or press A to re-zero heading from the current facing.
 - **Catapult doesn't move / moves unpredictably** — the two motors are driven as a leader/follower pair (`CatapultSubsystem`); confirm both `catapultLeft`/`catapultRight` are wired and named correctly, then tune via Panels before assuming there's a code bug.

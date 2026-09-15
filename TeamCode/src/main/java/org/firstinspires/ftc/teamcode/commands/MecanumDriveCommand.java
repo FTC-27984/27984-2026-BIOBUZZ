@@ -8,15 +8,18 @@ import dev.nextftc.ftc.ActiveOpMode;
 
 /**
  * Continuously drives the mecanum drivetrain from gamepad1 sticks, field-centric
- * (stick forward = away from driver, regardless of robot heading) using Pinpoint's
- * heading. Holding left bumper falls back to robot-centric, e.g. if heading drifts
- * or Pinpoint isn't calibrated. Scheduled once in onStartButtonPressed() and runs
- * for the whole teleop period (never finishes).
+ * (stick forward = away from driver, regardless of robot heading) using the Control
+ * Hub's built-in IMU. Holding left bumper falls back to robot-centric, e.g. if
+ * heading drifts. Pressing A zeroes heading to the robot's current facing (same
+ * pattern as the FTC SDK's RobotTeleopMecanumFieldRelativeDrive sample). Scheduled
+ * once in onStartButtonPressed() and runs for the whole teleop period (never finishes).
  *
  * NOTE: assumes ActiveOpMode exposes gamepad1 the same way it exposes telemetry/
  * hardwareMap - verify on first compile; fall back to dev.nextftc.ftc.Gamepads if not.
  */
 public class MecanumDriveCommand extends Command {
+
+    private boolean lastResetYawButton = false;
 
     public MecanumDriveCommand() {
         requires(DrivetrainSubsystem.INSTANCE);
@@ -30,6 +33,12 @@ public class MecanumDriveCommand extends Command {
 
     @Override
     public void update() {
+        boolean resetYawNow = ActiveOpMode.getGamepad1().a;
+        if (resetYawNow && !lastResetYawButton) {
+            DrivetrainSubsystem.INSTANCE.resetYaw();
+        }
+        lastResetYawButton = resetYawNow;
+
         double forward = -ActiveOpMode.getGamepad1().left_stick_y;
         double strafe = ActiveOpMode.getGamepad1().left_stick_x;
         double turn = ActiveOpMode.getGamepad1().right_stick_x;
@@ -41,8 +50,7 @@ public class MecanumDriveCommand extends Command {
 
         // Field-centric transform: rotate the stick vector by -heading so "forward"
         // always means "away from the driver." Same polar-coordinate approach as the
-        // FTC SDK's own RobotTeleopMecanumFieldRelativeDrive sample, using Pinpoint's
-        // heading instead of the IMU.
+        // FTC SDK's own RobotTeleopMecanumFieldRelativeDrive sample.
         double theta = Math.atan2(forward, strafe);
         double r = Math.hypot(strafe, forward);
         theta = AngleUnit.normalizeRadians(theta - DrivetrainSubsystem.INSTANCE.getHeadingRadians());

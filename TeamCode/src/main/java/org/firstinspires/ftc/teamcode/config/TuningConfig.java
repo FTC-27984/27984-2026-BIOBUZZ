@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.config;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 /**
  * Live-tunable constants, editable from the Panels dashboard (192.168.43.1:8001)
@@ -12,10 +13,13 @@ public class TuningConfig {
     // Drivetrain
     public static double DRIVE_SPEED_MULTIPLIER = 1.0;
 
-    // Pinpoint odometry offsets (mm), relative to tracking center - measure per
-    // POD_OFFSETS.md and set for real before trusting field-centric driving
-    public static double PINPOINT_X_OFFSET_MM = 0.0;
-    public static double PINPOINT_Y_OFFSET_MM = 0.0;
+    // Which way the Control/Expansion Hub is physically mounted on the robot - the
+    // built-in IMU needs this to report correct heading. Not Panels-editable (enum
+    // constants, not primitives); set these directly to match your hub's mounting.
+    public static RevHubOrientationOnRobot.LogoFacingDirection HUB_LOGO_FACING_DIRECTION =
+            RevHubOrientationOnRobot.LogoFacingDirection.UP;
+    public static RevHubOrientationOnRobot.UsbFacingDirection HUB_USB_FACING_DIRECTION =
+            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
     // Catapult - launch kinematics not yet finalized, tune against real hardware
     public static double CATAPULT_FIRE_POWER = 1.0;
