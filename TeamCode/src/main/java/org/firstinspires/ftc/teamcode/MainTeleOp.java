@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.MecanumDriveCommand;
+import org.firstinspires.ftc.teamcode.components.LogoStreamComponent;
 import org.firstinspires.ftc.teamcode.subsystems.CatapultSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DrivetrainSubsystem;
 
@@ -17,6 +18,7 @@ public class MainTeleOp extends NextFTCOpMode {
     public MainTeleOp() {
         addComponents(
                 BulkReadComponent.INSTANCE,
+                LogoStreamComponent.INSTANCE,
                 new SubsystemComponent(DrivetrainSubsystem.INSTANCE, CatapultSubsystem.INSTANCE)
         );
     }

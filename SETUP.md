@@ -70,7 +70,15 @@ This shows live telemetry (wheel powers, heading, catapult position) and lets yo
 | Gamepad2 A | Fire catapult |
 | Gamepad2 B | Return catapult to ready position |
 
-## 8. Known Gaps
+## 8. Team Logo on Driver Station
+
+`MainTeleOp` pushes `TeamCode/src/main/res/drawable/team_logo.png` to the Driver Station's **Camera Stream** panel as soon as the OpMode is selected and initialized — no camera hardware needed. On the DS, open the three-dot menu → **Camera Stream** to view it. This uses the FTC SDK's `CameraStreamServer`/`CameraStreamSource` API (the same mechanism EasyOpenCV/VisionPortal use to preview live camera frames), just fed a static image instead.
+
+To change the image: replace `TeamCode/src/main/res/drawable/team_logo.png` with a new file of the same name (or add a new file and update the `R.drawable.team_logo` reference in `LogoStreamComponent.java`). Android resource filenames must be lowercase with underscores only.
+
+To add this to another OpMode (e.g. once autonomous exists), add `LogoStreamComponent.INSTANCE` to that OpMode's `addComponents(...)` call.
+
+## 9. Known Gaps
 
 - **Catapult tuning is placeholder.** The fire/ready target positions and power in `TuningConfig` aren't tuned to the real mechanism yet — expect to adjust them via Panels before the catapult behaves correctly.
 - **No autonomous yet.** This is teleop only; Pedro Pathing/autonomous path following is a deliberately separate future pass.
