@@ -13,7 +13,6 @@ import dev.nextftc.core.commands.utility.LambdaCommand;
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.ftc.ActiveOpMode;
 import dev.nextftc.hardware.impl.MotorEx;
-import kotlin.Unit;
 
 /**
  * Catapult shooter: two GoBilda Yellow Jacket motors rigidly coupled to one arm,
@@ -43,10 +42,10 @@ public class CatapultSubsystem implements Subsystem {
 
     @Override
     public void periodic() {
-        ActiveOpMode.getTelemetry().addData("Catapult position", leader.getCurrentPosition());
-        ActiveOpMode.getTelemetry().addData("Catapult power", leader.getPower());
-        ActiveOpMode.getTelemetry().addData("Catapult current (A)", leader.getMotor().getCurrent(CurrentUnit.AMPS));
-        ActiveOpMode.getTelemetry().update();
+        ActiveOpMode.telemetry().addData("Catapult position", leader.getCurrentPosition());
+        ActiveOpMode.telemetry().addData("Catapult power", leader.getPower());
+        ActiveOpMode.telemetry().addData("Catapult current (A)", leader.getMotor().getCurrent(CurrentUnit.AMPS));
+        ActiveOpMode.telemetry().update();
     }
 
     // Leader is rigidly coupled to the arm, so a jam shows up as a current spike on the
@@ -59,22 +58,17 @@ public class CatapultSubsystem implements Subsystem {
     // effect on the next fire/ready, not just whatever TuningConfig held at startup.
     private Command goToPosition(IntSupplier targetPosition, DoubleSupplier power, String name) {
         return new LambdaCommand()
-                .setStart(() -> {
-                    leader.setPower(power.getAsDouble());
-                    return Unit.INSTANCE;
-                })
+                .setStart(() -> leader.setPower(power.getAsDouble()))
                 .setUpdate(() -> {
                     // Follower mirrors leader's actual output power every loop -
                     // open-loop, no independent position control of its own.
                     follower.setPower(leader.getPower());
-                    return Unit.INSTANCE;
                 })
                 .setIsDone(() -> Math.abs(leader.getCurrentPosition() - targetPosition.getAsInt()) < TuningConfig.CATAPULT_TOLERANCE
                         || isStalled())
                 .setStop((interrupted) -> {
                     leader.setPower(0.0);
                     follower.setPower(0.0);
-                    return Unit.INSTANCE;
                 })
                 .requires(this)
                 .named(name);
@@ -94,7 +88,6 @@ public class CatapultSubsystem implements Subsystem {
             .setStart(() -> {
                 leader.setPower(0.0);
                 follower.setPower(0.0);
-                return Unit.INSTANCE;
             })
             .setIsDone(() -> true)
             .requires(this)

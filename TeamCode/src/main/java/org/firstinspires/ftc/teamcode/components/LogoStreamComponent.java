@@ -35,7 +35,7 @@ public class LogoStreamComponent implements Component, CameraStreamSource {
     public void preInit() {
         if (logo == null) {
             logo = BitmapFactory.decodeResource(
-                    ActiveOpMode.getHardwareMap().appContext.getResources(),
+                    ActiveOpMode.hardwareMap().appContext.getResources(),
                     R.drawable.team_logo);
         }
         CameraStreamServer.getInstance().setSource(this);

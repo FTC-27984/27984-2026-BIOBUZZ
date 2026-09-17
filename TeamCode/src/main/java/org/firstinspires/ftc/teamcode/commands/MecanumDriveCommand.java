@@ -33,17 +33,17 @@ public class MecanumDriveCommand extends Command {
 
     @Override
     public void update() {
-        boolean resetYawNow = ActiveOpMode.getGamepad1().a;
+        boolean resetYawNow = ActiveOpMode.gamepad1().a;
         if (resetYawNow && !lastResetYawButton) {
             DrivetrainSubsystem.INSTANCE.resetYaw();
         }
         lastResetYawButton = resetYawNow;
 
-        double forward = -ActiveOpMode.getGamepad1().left_stick_y;
-        double strafe = ActiveOpMode.getGamepad1().left_stick_x;
-        double turn = ActiveOpMode.getGamepad1().right_stick_x;
+        double forward = -ActiveOpMode.gamepad1().left_stick_y;
+        double strafe = ActiveOpMode.gamepad1().left_stick_x;
+        double turn = ActiveOpMode.gamepad1().right_stick_x;
 
-        if (ActiveOpMode.getGamepad1().left_bumper) {
+        if (ActiveOpMode.gamepad1().left_bumper) {
             DrivetrainSubsystem.INSTANCE.setDrivePowers(forward, strafe, turn);
             return;
         }

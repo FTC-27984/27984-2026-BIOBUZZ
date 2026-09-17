@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -48,8 +47,8 @@ public class DrivetrainSubsystem implements Subsystem {
     public void initialize() {
         // Right side reversed so positive power drives all wheels forward.
         // Confirm against physical mounting once wired.
-        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRightMotor.reverse();
+        backRightMotor.reverse();
 
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -61,7 +60,7 @@ public class DrivetrainSubsystem implements Subsystem {
         backLeft = new VoltageCompensatingMotor(backLeftMotor);
         backRight = new VoltageCompensatingMotor(backRightMotor);
 
-        imu = ActiveOpMode.getHardwareMap().get(IMU.class, "imu");
+        imu = ActiveOpMode.hardwareMap().get(IMU.class, "imu");
         // MUST match how the Control/Expansion Hub is physically mounted on the robot -
         // these are placeholders (see TuningConfig) and will give wrong heading if unset.
         RevHubOrientationOnRobot orientation = new RevHubOrientationOnRobot(
@@ -72,12 +71,12 @@ public class DrivetrainSubsystem implements Subsystem {
 
     @Override
     public void periodic() {
-        ActiveOpMode.getTelemetry().addData("FL power", frontLeft.getPower());
-        ActiveOpMode.getTelemetry().addData("FR power", frontRight.getPower());
-        ActiveOpMode.getTelemetry().addData("BL power", backLeft.getPower());
-        ActiveOpMode.getTelemetry().addData("BR power", backRight.getPower());
-        ActiveOpMode.getTelemetry().addData("Heading (deg)", Math.toDegrees(getHeadingRadians()));
-        ActiveOpMode.getTelemetry().update();
+        ActiveOpMode.telemetry().addData("FL power", frontLeft.getPower());
+        ActiveOpMode.telemetry().addData("FR power", frontRight.getPower());
+        ActiveOpMode.telemetry().addData("BL power", backLeft.getPower());
+        ActiveOpMode.telemetry().addData("BR power", backRight.getPower());
+        ActiveOpMode.telemetry().addData("Heading (deg)", Math.toDegrees(getHeadingRadians()));
+        ActiveOpMode.telemetry().update();
     }
 
     /** Robot heading in radians, counterclockwise positive. */
