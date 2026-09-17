@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.config.TuningConfig;
 
 import java.util.function.DoubleSupplier;
@@ -44,7 +45,14 @@ public class CatapultSubsystem implements Subsystem {
     public void periodic() {
         ActiveOpMode.getTelemetry().addData("Catapult position", leader.getCurrentPosition());
         ActiveOpMode.getTelemetry().addData("Catapult power", leader.getPower());
+        ActiveOpMode.getTelemetry().addData("Catapult current (A)", leader.getMotor().getCurrent(CurrentUnit.AMPS));
         ActiveOpMode.getTelemetry().update();
+    }
+
+    // Leader is rigidly coupled to the arm, so a jam shows up as a current spike on the
+    // leader alone - cut power instead of holding against the stall.
+    private boolean isStalled() {
+        return leader.getMotor().getCurrent(CurrentUnit.AMPS) > TuningConfig.CATAPULT_STALL_CURRENT_AMPS;
     }
 
     // Suppliers (not captured values) so live edits from the Panels dashboard take
@@ -61,7 +69,8 @@ public class CatapultSubsystem implements Subsystem {
                     follower.setPower(leader.getPower());
                     return Unit.INSTANCE;
                 })
-                .setIsDone(() -> Math.abs(leader.getCurrentPosition() - targetPosition.getAsInt()) < TuningConfig.CATAPULT_TOLERANCE)
+                .setIsDone(() -> Math.abs(leader.getCurrentPosition() - targetPosition.getAsInt()) < TuningConfig.CATAPULT_TOLERANCE
+                        || isStalled())
                 .setStop((interrupted) -> {
                     leader.setPower(0.0);
                     follower.setPower(0.0);

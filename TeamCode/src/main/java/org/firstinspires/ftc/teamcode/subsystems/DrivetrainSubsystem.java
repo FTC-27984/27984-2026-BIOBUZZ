@@ -10,7 +10,9 @@ import org.firstinspires.ftc.teamcode.config.TuningConfig;
 
 import dev.nextftc.core.subsystems.Subsystem;
 import dev.nextftc.ftc.ActiveOpMode;
+import dev.nextftc.hardware.controllable.Controllable;
 import dev.nextftc.hardware.impl.MotorEx;
+import dev.nextftc.hardware.impl.VoltageCompensatingMotor;
 
 /**
  * Standard 4-wheel mecanum drivetrain (Studica motors). Config names must match the
@@ -24,10 +26,18 @@ public class DrivetrainSubsystem implements Subsystem {
 
     public static final DrivetrainSubsystem INSTANCE = new DrivetrainSubsystem();
 
-    private final MotorEx frontLeft = new MotorEx("frontLeft");
-    private final MotorEx frontRight = new MotorEx("frontRight");
-    private final MotorEx backLeft = new MotorEx("backLeft");
-    private final MotorEx backRight = new MotorEx("backRight");
+    private final MotorEx frontLeftMotor = new MotorEx("frontLeft");
+    private final MotorEx frontRightMotor = new MotorEx("frontRight");
+    private final MotorEx backLeftMotor = new MotorEx("backLeft");
+    private final MotorEx backRightMotor = new MotorEx("backRight");
+
+    // Wrapped so commanded power is scaled to compensate for battery voltage sag -
+    // without odometry to correct against, a consistent power-to-speed relationship
+    // is what keeps IMU-only autos (time/power-based distance) from drifting further.
+    private Controllable frontLeft;
+    private Controllable frontRight;
+    private Controllable backLeft;
+    private Controllable backRight;
 
     private IMU imu;
 
@@ -38,13 +48,18 @@ public class DrivetrainSubsystem implements Subsystem {
     public void initialize() {
         // Right side reversed so positive power drives all wheels forward.
         // Confirm against physical mounting once wired.
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        frontRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        backRightMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        frontLeft = new VoltageCompensatingMotor(frontLeftMotor);
+        frontRight = new VoltageCompensatingMotor(frontRightMotor);
+        backLeft = new VoltageCompensatingMotor(backLeftMotor);
+        backRight = new VoltageCompensatingMotor(backRightMotor);
 
         imu = ActiveOpMode.getHardwareMap().get(IMU.class, "imu");
         // MUST match how the Control/Expansion Hub is physically mounted on the robot -
