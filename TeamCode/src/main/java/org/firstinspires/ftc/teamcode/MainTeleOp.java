@@ -4,8 +4,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.MecanumDriveCommand;
 import org.firstinspires.ftc.teamcode.components.LogoStreamComponent;
-import org.firstinspires.ftc.teamcode.subsystems.CatapultSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DrivetrainSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FlywheelSubsystem;
 
 import dev.nextftc.core.commands.CommandManager;
 import dev.nextftc.core.components.SubsystemComponent;
@@ -19,12 +20,13 @@ public class MainTeleOp extends NextFTCOpMode {
         addComponents(
                 BulkReadComponent.INSTANCE,
                 LogoStreamComponent.INSTANCE,
-                new SubsystemComponent(DrivetrainSubsystem.INSTANCE, CatapultSubsystem.INSTANCE)
+                new SubsystemComponent(DrivetrainSubsystem.INSTANCE, FlywheelSubsystem.INSTANCE, FeederSubsystem.INSTANCE)
         );
     }
 
-    private boolean lastFireButton = false;
-    private boolean lastReadyButton = false;
+    private boolean lastSpinButton = false;
+    private boolean lastFeedButton = false;
+    private boolean flywheelSpinning = false;
 
     @Override
     public void onStartButtonPressed() {
@@ -33,16 +35,18 @@ public class MainTeleOp extends NextFTCOpMode {
 
     @Override
     public void onUpdate() {
-        boolean fireNow = gamepad2.a;
-        if (fireNow && !lastFireButton) {
-            CommandManager.INSTANCE.scheduleCommand(CatapultSubsystem.INSTANCE.fire);
+        boolean spinNow = gamepad2.a;
+        if (spinNow && !lastSpinButton) {
+            flywheelSpinning = !flywheelSpinning;
+            CommandManager.INSTANCE.scheduleCommand(
+                    flywheelSpinning ? FlywheelSubsystem.INSTANCE.spinUp : FlywheelSubsystem.INSTANCE.stop);
         }
-        lastFireButton = fireNow;
+        lastSpinButton = spinNow;
 
-        boolean readyNow = gamepad2.b;
-        if (readyNow && !lastReadyButton) {
-            CommandManager.INSTANCE.scheduleCommand(CatapultSubsystem.INSTANCE.ready);
+        boolean feedNow = gamepad2.b;
+        if (feedNow && !lastFeedButton && FlywheelSubsystem.INSTANCE.isAtSpeed()) {
+            CommandManager.INSTANCE.scheduleCommand(FeederSubsystem.INSTANCE.feed);
         }
-        lastReadyButton = readyNow;
+        lastFeedButton = feedNow;
     }
 }
