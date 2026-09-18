@@ -29,4 +29,21 @@ public class TuningConfig {
     // Leader motor current draw above which it's treated as stalled and cut - placeholder,
     // set from the GoBilda Yellow Jacket's free/stall current spec once tuned.
     public static double CATAPULT_STALL_CURRENT_AMPS = 5.0;
+
+    // Flywheel - velocity PIDF + feedforward, all placeholders pending tuning against the
+    // actual REV planetary motor (its free speed/encoder CPR differ from the old catapult
+    // motors, so these can't be copied from another mechanism's constants).
+    public static double FLYWHEEL_TARGET_VELOCITY = 1800.0; // ticks/sec
+    public static double FLYWHEEL_KP = 0.0005;
+    public static double FLYWHEEL_KI = 0.0;
+    public static double FLYWHEEL_KD = 0.0;
+    public static double FLYWHEEL_KV = 0.00015;
+    public static double FLYWHEEL_KA = 0.0;
+    public static double FLYWHEEL_KS = 0.0;
+    public static double FLYWHEEL_VELOCITY_TOLERANCE = 50.0; // ticks/sec
+
+    // Feeder - timed push into the flywheel, no position feedback
+    public static double FEEDER_EXTEND_POSITION = 1.0;
+    public static double FEEDER_RETRACT_POSITION = 0.0;
+    public static double FEEDER_EXTEND_SECONDS = 0.25;
 }
