@@ -39,6 +39,9 @@ public class DrivetrainSubsystem implements Subsystem {
     private Controllable backRight;
 
     private IMU imu;
+    // IMU isn't covered by bulk reads, so heading is read once per loop in periodic()
+    // and cached rather than queried separately by telemetry and the drive command.
+    private double headingRadians = 0.0;
 
     private DrivetrainSubsystem() {
     }
@@ -71,6 +74,8 @@ public class DrivetrainSubsystem implements Subsystem {
 
     @Override
     public void periodic() {
+        headingRadians = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
         ActiveOpMode.telemetry().addData("FL power", frontLeft.getPower());
         ActiveOpMode.telemetry().addData("FR power", frontRight.getPower());
         ActiveOpMode.telemetry().addData("BL power", backLeft.getPower());
@@ -79,14 +84,15 @@ public class DrivetrainSubsystem implements Subsystem {
         ActiveOpMode.telemetry().update();
     }
 
-    /** Robot heading in radians, counterclockwise positive. */
+    /** Robot heading in radians, counterclockwise positive, as of this loop's periodic(). */
     public double getHeadingRadians() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return headingRadians;
     }
 
     /** Zeroes heading to the robot's current orientation. */
     public void resetYaw() {
         imu.resetYaw();
+        headingRadians = 0.0;
     }
 
     /**
@@ -97,6 +103,8 @@ public class DrivetrainSubsystem implements Subsystem {
      * @param turn    -1.0 (counterclockwise) to 1.0 (clockwise)
      */
     public void setDrivePowers(double forward, double strafe, double turn) {
+        strafe *= TuningConfig.STRAFE_MULTIPLIER;
+
         double fl = forward + strafe + turn;
         double fr = forward - strafe - turn;
         double bl = forward - strafe + turn;

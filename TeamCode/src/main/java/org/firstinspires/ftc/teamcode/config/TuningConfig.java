@@ -12,6 +12,9 @@ public class TuningConfig {
 
     // Drivetrain
     public static double DRIVE_SPEED_MULTIPLIER = 1.0;
+    // Mecanum wheels strafe slower than they drive forward; scales strafe up so diagonal
+    // stick inputs (and field-centric driving) go the intended direction. Typically ~1.1.
+    public static double STRAFE_MULTIPLIER = 1.1;
 
     // Which way the Control/Expansion Hub is physically mounted on the robot - the
     // built-in IMU needs this to report correct heading. Not Panels-editable (enum

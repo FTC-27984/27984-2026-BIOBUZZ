@@ -12,7 +12,7 @@ import dev.nextftc.ftc.components.BulkReadComponent;
 
 /**
  * Drivetrain-only teleop for testing and tuning the mecanum drive and IMU heading,
- * without the flywheel, feeder, or logo stream. Controls are the same as MainTeleOp:
+ * without the catapult or logo stream. Controls are the same as MainTeleOp:
  * gamepad1 sticks drive field-centric, left bumper holds robot-centric, A zeroes heading.
  */
 @TeleOp(name = "Drivetrain TeleOp")
