@@ -19,14 +19,14 @@ public class TuningConfig {
     public static RevHubOrientationOnRobot.LogoFacingDirection HUB_LOGO_FACING_DIRECTION =
             RevHubOrientationOnRobot.LogoFacingDirection.UP;
     public static RevHubOrientationOnRobot.UsbFacingDirection HUB_USB_FACING_DIRECTION =
-            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+            RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD;
 
     // Catapult - launch kinematics not yet finalized, tune against real hardware
     public static double CATAPULT_FIRE_POWER = 1.0;
     public static int CATAPULT_FIRE_POSITION = 1500;
     public static int CATAPULT_READY_POSITION = 0;
     public static int CATAPULT_TOLERANCE = 20;
-    // Leader motor current draw above which it's treated as stalled and cut - placeholder,
+    // Catapult motor current draw above which it's treated as stalled and cut - placeholder,
     // set from the GoBilda Yellow Jacket's free/stall current spec once tuned.
     public static double CATAPULT_STALL_CURRENT_AMPS = 5.0;
 }
