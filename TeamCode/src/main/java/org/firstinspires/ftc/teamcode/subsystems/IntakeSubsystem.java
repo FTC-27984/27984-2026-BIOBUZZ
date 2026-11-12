@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.IMU;
+
+import org.firstinspires.ftc.teamcode.config.TuningConfig;
 
 import dev.nextftc.core.commands.Command;
 import dev.nextftc.core.commands.utility.InstantCommand;
@@ -22,6 +26,8 @@ public class IntakeSubsystem implements Subsystem {
     private boolean running = false;
     private boolean reversed = false;
 
+    private IMU imu;
+
     private IntakeSubsystem() {}
 
     @Override
@@ -30,6 +36,14 @@ public class IntakeSubsystem implements Subsystem {
         intake = new VoltageCompensatingMotor(intakeMotor);
         running = false;
         reversed = false;
+
+        imu = ActiveOpMode.hardwareMap().get(IMU.class, "imu");
+        // MUST match how the Control/Expansion Hub is physically mounted on the robot -
+        // these are placeholders (see TuningConfig) and will give wrong heading if unset.
+        RevHubOrientationOnRobot orientation = new RevHubOrientationOnRobot(
+                TuningConfig.HUB_LOGO_FACING_DIRECTION,
+                TuningConfig.HUB_USB_FACING_DIRECTION);
+        imu.initialize(new IMU.Parameters(orientation));
     }
 
     @Override
