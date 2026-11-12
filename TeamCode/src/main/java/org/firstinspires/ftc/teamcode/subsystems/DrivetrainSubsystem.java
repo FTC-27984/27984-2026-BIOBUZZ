@@ -48,9 +48,9 @@ public class DrivetrainSubsystem implements Subsystem {
 
     @Override
     public void initialize() {
-        // Right side reversed so positive power drives all wheels forward.
-        // Confirm against physical mounting once wired.
-        frontRightMotor.reverse();
+        // Reversed where needed so positive power drives all wheels forward.
+        // frontRight is intentionally NOT reversed: it drove backward when reversed
+        // (wheel test), so its wiring/mounting differs from backRight.
         backRightMotor.reverse();
 
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
