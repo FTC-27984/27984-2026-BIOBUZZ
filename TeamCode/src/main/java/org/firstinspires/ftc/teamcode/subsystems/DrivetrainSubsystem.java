@@ -48,9 +48,9 @@ public class DrivetrainSubsystem implements Subsystem {
 
     @Override
     public void initialize() {
-        // Reversed where needed so positive power drives all wheels forward.
-        // frontRight is intentionally NOT reversed: it drove backward when reversed
-        // (wheel test), so its wiring/mounting differs from backRight.
+        // Right side reversed so positive power drives all wheels forward.
+        // Confirm against physical mounting once wired.
+        frontRightMotor.reverse();
         backRightMotor.reverse();
 
         frontLeftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -80,7 +80,7 @@ public class DrivetrainSubsystem implements Subsystem {
         ActiveOpMode.telemetry().addData("FR power", frontRight.getPower());
         ActiveOpMode.telemetry().addData("BL power", backLeft.getPower());
         ActiveOpMode.telemetry().addData("BR power", backRight.getPower());
-        ActiveOpMode.telemetry().addData("Build", "FR-no-reverse test");
+        ActiveOpMode.telemetry().addData("Build", "FR-reversed test");
         ActiveOpMode.telemetry().addData("Heading (deg)", Math.toDegrees(getHeadingRadians()));
         ActiveOpMode.telemetry().update();
     }
