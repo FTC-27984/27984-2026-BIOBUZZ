@@ -80,6 +80,7 @@ public class DrivetrainSubsystem implements Subsystem {
         ActiveOpMode.telemetry().addData("FR power", frontRight.getPower());
         ActiveOpMode.telemetry().addData("BL power", backLeft.getPower());
         ActiveOpMode.telemetry().addData("BR power", backRight.getPower());
+        ActiveOpMode.telemetry().addData("Build", "FR-no-reverse test");
         ActiveOpMode.telemetry().addData("Heading (deg)", Math.toDegrees(getHeadingRadians()));
         ActiveOpMode.telemetry().update();
     }
