@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.commands.MecanumDriveCommand;
 import org.firstinspires.ftc.teamcode.components.LogoStreamComponent;
 import org.firstinspires.ftc.teamcode.subsystems.CatapultSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.DrivetrainSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 
 import dev.nextftc.core.commands.CommandManager;
 import dev.nextftc.core.components.SubsystemComponent;
@@ -19,7 +20,11 @@ public class MainTeleOp extends NextFTCOpMode {
         addComponents(
                 BulkReadComponent.INSTANCE,
                 LogoStreamComponent.INSTANCE,
-                new SubsystemComponent(DrivetrainSubsystem.INSTANCE, CatapultSubsystem.INSTANCE)
+                new SubsystemComponent(
+                        DrivetrainSubsystem.INSTANCE,
+                        CatapultSubsystem.INSTANCE,
+                        IntakeSubsystem.INSTANCE
+                )
         );
     }
 
@@ -33,6 +38,13 @@ public class MainTeleOp extends NextFTCOpMode {
 
     @Override
     public void onUpdate() {
+        if (gamepad1.rightTriggerWasPressed()) {
+            CommandManager.INSTANCE.scheduleCommand(IntakeSubsystem.INSTANCE.toggle());
+        }
+        if (gamepad1.leftTriggerWasPressed()) {
+            CommandManager.INSTANCE.scheduleCommand(IntakeSubsystem.INSTANCE.reverse());
+        }
+
         boolean fireNow = gamepad2.a;
         if (fireNow && !lastFireButton) {
             CommandManager.INSTANCE.scheduleCommand(CatapultSubsystem.INSTANCE.fire);
